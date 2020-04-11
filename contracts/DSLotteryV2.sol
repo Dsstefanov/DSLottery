@@ -1,9 +1,9 @@
-pragma solidity ^0.4.0;
+pragma solidity 0.5.12;
 
 import "./DSLottery.sol";
 
 contract DSLotteryV2 is DSLottery{
-	function DSLotteryV2(){
+	constructor() public{
 		initialize(msg.sender);
 	}
 
