@@ -8,7 +8,8 @@ contract DSLottery is Storage {
 		_;
 	}
 
-	modifier costs() {
+	//
+	modifier requiresMinimumPayment() {
 		require(msg.value >= _uintStorage["minimumParticipationEther"]);
 		_;
 	}
@@ -21,8 +22,13 @@ contract DSLottery is Storage {
 	}
 
 	// Activates a record that the current user participates in the lottery
-	function participate() public payable costs {
+	function participate() public payable requiresMinimumPayment {
 		// To be implemented
+	}
+
+	// Draws a winner at the end of the tier
+	function drawWinner() public {
+
 	}
 
 	// Gets the amount of money that would be awarded to the winner
@@ -30,7 +36,7 @@ contract DSLottery is Storage {
 		return _uintStorage["prize"];
 	}
 
-	function resetPrize() private {
+	function resetLottery() private {
 		_uintStorage["prize"] = 0;
 	}
 
@@ -41,8 +47,9 @@ contract DSLottery is Storage {
 		require(winner != address(0), "WINNER_NOT_SELECTED");
 		require(winner == msg.sender, "ONLY_WINNER_CAN_CLAIM_PRIZE");
 		uint256 amountToSend = getPrizeAmount();
+		assert(this.balance >= amountToSend);
 
-		resetPrize();
+		resetLottery();
 
 		msg.sender.transfer(amountToSend);
 	}
