@@ -30,6 +30,23 @@ contract DSLottery is Storage {
 		return _uintStorage["prize"];
 	}
 
+	function resetPrize() private {
+		_uintStorage["prize"] = 0;
+	}
+
+	// Claim the prize
+	function claimPrize() public {
+		string memory currentTier = _stringStorage["currentTier"];
+		address winner = _addressStorage[currentTier];
+		require(winner != address(0), "WINNER_NOT_SELECTED");
+		require(winner == msg.sender, "ONLY_WINNER_CAN_CLAIM_PRIZE");
+		uint256 amountToSend = getPrizeAmount();
+
+		resetPrize();
+
+		msg.sender.transfer(amountToSend);
+	}
+
 	// Sets the minimal participation payment
 	function setMinimumParticipationEther(uint amount) public onlyOwner {
 		_uintStorage["minimumParticipationEther"] = amount;
