@@ -5,6 +5,8 @@ contract Storage {
 		uint prize;
 		address winner;
 		bool claimed;
+		address [] participantsArray;
+		mapping (address => bool) participantMapping;
 	}
 	mapping (string => uint256) _uintStorage;
 	mapping (string => address) _addressStorage;

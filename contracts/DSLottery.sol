@@ -25,12 +25,17 @@ contract DSLottery is Storage {
 
 	// Activates a record that the current user participates in the lottery
 	function participate() public payable requiresMinimumPayment {
-		// To be implemented
+		Tier memory tierParticipants = _tierStorage[_currentTier].participants;
+		if (_tierStorage[_currentTier].participantsMapping[msg.sender] == true) {
+			revert("ALREADY_PLAYING");
+		}
+		_tierStorage[_currentTier].participantsArray.push(msg.sender);
+		_tierStorage[_currentTier].participantsMapping[msg.sender] = true;
 	}
 
 	// Draws a winner at the end of the tier
 	function drawWinner() public {
-
+		// TODO implement oracle for generating random number
 	}
 
 	// Gets the amount of money that would be awarded to the winner
