@@ -25,7 +25,6 @@ contract DSLottery is Storage {
 
 	// Activates a record that the current user participates in the lottery
 	function participate() public payable requiresMinimumPayment {
-		Tier memory tierParticipants = _tierStorage[_currentTier].participants;
 		if (_tierStorage[_currentTier].participantsMapping[msg.sender] == true) {
 			revert("ALREADY_PLAYING");
 		}
