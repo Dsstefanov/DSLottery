@@ -3,22 +3,24 @@ pragma solidity 0.5.12;
 import "./Storage.sol";
 
 contract DSLottery is Storage {
+	// Only owner executable
 	modifier onlyOwner() {
-		require(msg.sender == owner);
+		require(msg.sender == _owner);
 		_;
 	}
 
-	//
+	// Verifies the request has at least the minimum amount of money
 	modifier requiresMinimumPayment() {
 		require(msg.value >= _uintStorage["minimumParticipationEther"]);
 		_;
 	}
 
-	constructor() public {
-		owner = msg.sender;
+	constructor(uint currentTier) public {
+		_owner = msg.sender;
 		if (_uintStorage["minimumParticipationEther"] == 0) {
 			_uintStorage["minimumParticipationEther"] = 0.01 ether;
 		}
+		_currentTier = currentTier;
 	}
 
 	// Activates a record that the current user participates in the lottery
@@ -32,24 +34,27 @@ contract DSLottery is Storage {
 	}
 
 	// Gets the amount of money that would be awarded to the winner
-	function getPrizeAmount() public view returns (uint256 prize){
-		return _uintStorage["prize"];
+	function getPrizeAmount(uint tier) public view returns (uint256 prize){
+		return _tierStorage[tier].prize;
 	}
 
+	// Reset the lottery and start the next tier
 	function resetLottery() private {
-		_uintStorage["prize"] = 0;
+		_currentTier++;
+		// TODO implement functionality based on dates
 	}
 
 	// Claim the prize
-	function claimPrize() public {
-		string memory currentTier = _stringStorage["currentTier"];
-		address winner = _addressStorage[currentTier];
+	function claimPrize(uint tier) public {
+		Tier memory tierStruct = _tierStorage[tier];
+		address winner = tierStruct.winner;
+		require(tierStruct.claimed != true, "PRIZE_ALREADY_CLAIMED");
 		require(winner != address(0), "WINNER_NOT_SELECTED");
 		require(winner == msg.sender, "ONLY_WINNER_CAN_CLAIM_PRIZE");
-		uint256 amountToSend = getPrizeAmount();
-		assert(this.balance >= amountToSend);
+		uint256 amountToSend = getPrizeAmount(tier);
+		assert(address(this).balance >= amountToSend);
 
-		resetLottery();
+		 _tierStorage[tier].claimed = true;
 
 		msg.sender.transfer(amountToSend);
 	}

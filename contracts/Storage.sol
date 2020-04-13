@@ -1,11 +1,19 @@
 pragma solidity 0.5.12;
 
 contract Storage {
+	struct Tier {
+		uint prize;
+		address winner;
+		bool claimed;
+	}
 	mapping (string => uint256) _uintStorage;
 	mapping (string => address) _addressStorage;
 	mapping (string => bool) _boolStorage;
 	mapping (string => string) _stringStorage;
 	mapping (string => bytes4) _bytesStorage;
-	address public owner;
+	mapping (uint => Tier) _tierStorage;
+	address public _owner;
 	bool public _initialized;
+	uint _currentTier;
+	uint [] _previousTiers;
 }

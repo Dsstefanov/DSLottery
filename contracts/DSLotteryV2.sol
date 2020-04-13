@@ -7,9 +7,9 @@ contract DSLotteryV2 is DSLottery{
 		initialize(msg.sender);
 	}
 
-	function initialize(address _owner) public {
+	function initialize(address owner) public {
 		require(!_initialized);
-		owner = _owner;
+		_owner = owner;
 		_initialized = true;
 	}
 }
