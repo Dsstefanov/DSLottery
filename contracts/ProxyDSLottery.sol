@@ -2,7 +2,7 @@ pragma solidity 0.5.12;
 
 import "./Storage.sol";
 
-contract Proxy is Storage {
+contract ProxyDSLottery is Storage {
 
 	// Contract address
 	address currentAddress;
