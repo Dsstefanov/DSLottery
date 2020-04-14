@@ -4,6 +4,8 @@ import "./Storage.sol";
 
 contract DSLottery is Storage {
 	// Only owner executable
+	uint constant HOUSE_EDGE_PERCENT = 1;
+	uint constant HOUSE_EDGE_MINIMUM_AMOUNT = 0.0003 ether;
 	modifier onlyOwner() {
 		require(msg.sender == _owner);
 		_;
@@ -30,6 +32,12 @@ contract DSLottery is Storage {
 		}
 		_tierStorage[_currentTier].participantsArray.push(msg.sender);
 		_tierStorage[_currentTier].participantsMapping[msg.sender] = true;
+		uint houseEdge = msg.value * HOUSE_EDGE_PERCENT / 100;
+		if (houseEdge < HOUSE_EDGE_MINIMUM_AMOUNT) {
+			houseEdge = HOUSE_EDGE_MINIMUM_AMOUNT;
+		}
+		require(msg.value - houseEdge > 0, "BET_TOO_SMALL");
+		_tierStorage[_currentTier].prize += msg.value - houseEdge;
 	}
 
 	// Draws a winner at the end of the tier
