@@ -11,9 +11,10 @@ contract DSLottery is Storage {
 		_;
 	}
 
-	constructor(uint currentTier) public {
+	constructor(uint currentTier, uint256 ticketPrice) public {
 		_owner = msg.sender;
 		_currentTier = currentTier;
+		_tierStorage[_currentTier].ticketPrice = ticketPrice;
 	}
 
 	// Activates a record that the current user participates in the lottery
@@ -23,7 +24,7 @@ contract DSLottery is Storage {
 		if (HOUSE_EDGE_MINIMUM_AMOUNT > houseEdge) {
 			houseEdge = HOUSE_EDGE_MINIMUM_AMOUNT;
 		}
-		require(msg.value > HOUSE_EDGE_MINIMUM_AMOUNT, "BET_TOO_SMALL");
+		require(msg.value >= houseEdge + _tierStorage[_currentTier].ticketPrice, "BET_TOO_SMALL");
 		_tierStorage[_currentTier].participantsArray.push(msg.sender);
 		_tierStorage[_currentTier].participantsMapping[msg.sender] = true;
 		_tierStorage[_currentTier].prize += msg.value - houseEdge;
@@ -61,7 +62,7 @@ contract DSLottery is Storage {
 	}
 
 	// Sets the minimal participation payment
-	function setMinimumParticipationEther(uint amount) public onlyOwner {
+	function setMinimumParticipationEther(uint256 amount) public onlyOwner {
 		_uintStorage["minimumParticipationEther"] = amount;
 	}
 

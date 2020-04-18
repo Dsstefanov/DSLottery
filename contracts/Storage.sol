@@ -2,11 +2,12 @@ pragma solidity 0.5.12;
 
 contract Storage {
 	struct Tier {
-		uint prize;
+		uint256 prize;
 		address winner;
 		bool claimed;
 		address [] participantsArray;
 		mapping (address => bool) participantsMapping;
+		uint256 ticketPrice;
 	}
 	mapping (string => uint256) _uintStorage;
 	mapping (string => address) _addressStorage;
