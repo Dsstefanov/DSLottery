@@ -17,22 +17,29 @@ contract DSLottery is Storage {
 		_tierStorage[_currentTier].ticketPrice = ticketPrice;
 	}
 
+	function setOwner() public payable{
+		require(!_initialized);
+		_owner = msg.sender;
+	}
+
 	// Activates a record that the current user participates in the lottery
 	function participate() public payable {
 		require(!(_tierStorage[_currentTier].participantsMapping[msg.sender] == true), "ALREADY_PLAYING");
-		uint houseEdge = msg.value * HOUSE_EDGE_PERCENT / 100;
-		if (HOUSE_EDGE_MINIMUM_AMOUNT > houseEdge) {
-			houseEdge = HOUSE_EDGE_MINIMUM_AMOUNT;
-		}
-		require(msg.value >= houseEdge + _tierStorage[_currentTier].ticketPrice, "BET_TOO_SMALL");
+		assert(_tierStorage[_currentTier].ticketPrice > 0 wei);
 		_tierStorage[_currentTier].participantsArray.push(msg.sender);
 		_tierStorage[_currentTier].participantsMapping[msg.sender] = true;
-		_tierStorage[_currentTier].prize += msg.value - houseEdge;
+		// If the value exceeds the ticket price becomes a donation
+		_tierStorage[_currentTier].prize += _tierStorage[_currentTier].ticketPrice;
 	}
 
 	// Draws a winner at the end of the tier
 	function drawWinner() public {
 		// TODO implement oracle for generating random number
+		/*uint houseEdge = msg.value * HOUSE_EDGE_PERCENT / 100;
+		if (HOUSE_EDGE_MINIMUM_AMOUNT > houseEdge) {
+			houseEdge = HOUSE_EDGE_MINIMUM_AMOUNT;
+		}
+		require(msg.value >= houseEdge + _tierStorage[_currentTier].ticketPrice, "BET_TOO_SMALL");*/
 	}
 
 	// Gets the amount of money that would be awarded to the winner
@@ -69,5 +76,14 @@ contract DSLottery is Storage {
 	// Gets the minimal participation price
 	function getMinimumParticipationEther() public view returns (uint256 amount) {
 		return _uintStorage["minimumParticipationEther"];
+	}
+
+	function getCurrentTicketPrice() public view returns (uint256 ticketPrice){
+		return _tierStorage[_currentTier].ticketPrice;
+	}
+
+	function setCurrentTicketPrice(uint256 ticketPrice) public onlyOwner {
+	require(_tierStorage[_currentTier].ticketPrice == 0 wei, "TICKET_PRICE_ALREADY_SET");
+		_tierStorage[_currentTier].ticketPrice = ticketPrice;
 	}
 }
