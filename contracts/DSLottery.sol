@@ -11,32 +11,21 @@ contract DSLottery is Storage {
 		_;
 	}
 
-	// Verifies the request has at least the minimum amount of money
-	modifier requiresMinimumPayment() {
-		require(msg.value >= _uintStorage["minimumParticipationEther"]);
-		_;
-	}
-
 	constructor(uint currentTier) public {
 		_owner = msg.sender;
-		if (_uintStorage["minimumParticipationEther"] == 0) {
-			_uintStorage["minimumParticipationEther"] = 0.01 ether;
-		}
 		_currentTier = currentTier;
 	}
 
 	// Activates a record that the current user participates in the lottery
-	function participate() public payable requiresMinimumPayment {
-		if (_tierStorage[_currentTier].participantsMapping[msg.sender] == true) {
-			revert("ALREADY_PLAYING");
-		}
-		_tierStorage[_currentTier].participantsArray.push(msg.sender);
-		_tierStorage[_currentTier].participantsMapping[msg.sender] = true;
+	function participate() public payable {
+		require(!(_tierStorage[_currentTier].participantsMapping[msg.sender] == true), "ALREADY_PLAYING");
 		uint houseEdge = msg.value * HOUSE_EDGE_PERCENT / 100;
-		if (houseEdge < HOUSE_EDGE_MINIMUM_AMOUNT) {
+		if (HOUSE_EDGE_MINIMUM_AMOUNT > houseEdge) {
 			houseEdge = HOUSE_EDGE_MINIMUM_AMOUNT;
 		}
-		require(msg.value - houseEdge > 0, "BET_TOO_SMALL");
+		require(msg.value > HOUSE_EDGE_MINIMUM_AMOUNT, "BET_TOO_SMALL");
+		_tierStorage[_currentTier].participantsArray.push(msg.sender);
+		_tierStorage[_currentTier].participantsMapping[msg.sender] = true;
 		_tierStorage[_currentTier].prize += msg.value - houseEdge;
 	}
 
