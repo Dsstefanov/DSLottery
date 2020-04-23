@@ -1,12 +1,13 @@
 const truffleAssertions = require('truffle-assertions');
 const ProxyDSLottery = artifacts.require('ProxyDSLottery');
 const DSLottery = artifacts.require('DSLottery');
+const assert = require('assert');
 contract('DSLottery', async(accounts) => {
     let instance;
     const ticketPrice = web3.utils.toWei('0.2', 'ether');
 
     beforeEach(async () => {
-        const dSLottery = await DSLottery.new(1, ticketPrice);
+        const dSLottery = await DSLottery.new(0, ticketPrice);
         const proxy = await ProxyDSLottery.new(dSLottery.address);
         instance = await DSLottery.at(proxy.address);
         await instance.setOwner();
@@ -32,6 +33,16 @@ contract('DSLottery', async(accounts) => {
     it('should pass if sent amount covers ticket price', async () => {
         const options = {from: accounts[0], value: ticketPrice };
         truffleAssertions.passes(instance.participate(options));
+    })
+
+    it('should donate excess amount of money', async () => {
+        const options = {from: accounts[0], value: web3.utils.toWei(String((parseInt(web3.utils.toWei('0.0003', 'ether')) + parseInt(ticketPrice))), 'wei')};
+        const balanceBefore = await web3.eth.getBalance(instance.address);
+        const prizeBefore = await instance.getPrizeAmount(0);
+        await instance.participate(options);
+        const balanceAfter = await web3.eth.getBalance(instance.address);
+        const prizeAfter = await instance.getPrizeAmount(0);
+        assert.equal(balanceAfter - balanceBefore - (prizeAfter - prizeBefore), web3.utils.toWei('0.0003', 'ether'));
     })
 
     //#endregion
