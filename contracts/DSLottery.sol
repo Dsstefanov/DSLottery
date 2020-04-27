@@ -35,11 +35,6 @@ contract DSLottery is Storage {
 	// Draws a winner at the end of the tier
 	function drawWinner() public {
 		// TODO implement oracle for generating random number
-		/*uint houseEdge = msg.value * HOUSE_EDGE_PERCENT / 100;
-		if (HOUSE_EDGE_MINIMUM_AMOUNT > houseEdge) {
-			houseEdge = HOUSE_EDGE_MINIMUM_AMOUNT;
-		}
-		require(msg.value >= houseEdge + _tierStorage[_currentTier].ticketPrice, "BET_TOO_SMALL");*/
 	}
 
 	// Gets the amount of money that would be awarded to the winner
@@ -60,6 +55,14 @@ contract DSLottery is Storage {
 		require(tierStruct.claimed != true, "PRIZE_ALREADY_CLAIMED");
 		require(winner != address(0), "WINNER_NOT_SELECTED");
 		require(winner == msg.sender, "ONLY_WINNER_CAN_CLAIM_PRIZE");
+		uint prize = getPrizeAmount(tier);
+		uint houseEdge = prize * HOUSE_EDGE_PERCENT / 100;
+		if (HOUSE_EDGE_MINIMUM_AMOUNT > houseEdge) {
+			houseEdge = HOUSE_EDGE_MINIMUM_AMOUNT;
+		}
+
+		assert(prize <= address(this).balance);
+
 		uint256 amountToSend = getPrizeAmount(tier);
 		assert(address(this).balance >= amountToSend);
 

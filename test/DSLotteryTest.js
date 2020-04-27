@@ -4,10 +4,11 @@ const DSLottery = artifacts.require('DSLottery');
 const assert = require('assert');
 contract('DSLottery', async(accounts) => {
     let instance;
+    const currentTier = 0;
     const ticketPrice = web3.utils.toWei('0.2', 'ether');
 
     beforeEach(async () => {
-        const dSLottery = await DSLottery.new(0, ticketPrice);
+        const dSLottery = await DSLottery.new(currentTier, ticketPrice);
         const proxy = await ProxyDSLottery.new(dSLottery.address);
         instance = await DSLottery.at(proxy.address);
         await instance.setOwner();
@@ -44,6 +45,5 @@ contract('DSLottery', async(accounts) => {
         const prizeAfter = await instance.getPrizeAmount(0);
         assert.equal(balanceAfter - balanceBefore - (prizeAfter - prizeBefore), web3.utils.toWei('0.0003', 'ether'));
     })
-
     //#endregion
 });
