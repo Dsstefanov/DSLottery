@@ -21,6 +21,15 @@ contract('DSLottery', async(accounts) => {
         truffleAssertions.fails(instance.participate(options), truffleAssertions.ErrorType.REVERT, "ALREADY_PLAYING");
     });
 
+    it('should revert if the ticket price is not set', async () => {
+        const dSLottery = await DSLottery.new(currentTier, ticketPrice);
+        const proxy = await ProxyDSLottery.new(dSLottery.address);
+        instance = await DSLottery.at(proxy.address);
+        await instance.setOwner();
+        const options = {from: accounts[0], value: ticketPrice};
+        truffleAssertions.fails(instance.participate(options), truffleAssertions.ErrorType.REVERT, "TICKET_PRICE_NOT_SET");
+    });
+
     xit('should revert if sent amount doesn\'t cover fees', async () => {
         const options = {from: accounts[0], value: web3.utils.toWei('0.00029', 'ether')};
         truffleAssertions.fails(instance.participate(options), truffleAssertions.ErrorType.REVERT, 'BET_TOO_SMALL');

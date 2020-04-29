@@ -25,7 +25,7 @@ contract DSLottery is Storage {
 	// Activates a record that the current user participates in the lottery
 	function participate() public payable {
 		require(!(_tierStorage[_currentTier].participantsMapping[msg.sender] == true), "ALREADY_PLAYING");
-		assert(_tierStorage[_currentTier].ticketPrice > 0 wei);
+		require(_tierStorage[_currentTier].ticketPrice > 0 wei, "TICKET_PRICE_NOT_SET");
 		_tierStorage[_currentTier].participantsArray.push(msg.sender);
 		_tierStorage[_currentTier].participantsMapping[msg.sender] = true;
 		// If the value exceeds the ticket price becomes a donation
