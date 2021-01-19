@@ -28,7 +28,7 @@ contract DSLottery is Storage {
 		require(_tierStorage[_currentTier].ticketPrice > 0 wei, "TICKET_PRICE_NOT_SET");
 		_tierStorage[_currentTier].participantsArray.push(msg.sender);
 		_tierStorage[_currentTier].participantsMapping[msg.sender] = true;
-		// If the value exceeds the ticket price becomes a donation
+		// If the value exceeds the ticket price becomes a donation to the prize pool
 		_tierStorage[_currentTier].prize += _tierStorage[_currentTier].ticketPrice;
 	}
 
@@ -45,7 +45,7 @@ contract DSLottery is Storage {
 	// Reset the lottery and start the next tier
 	function resetLottery() private {
 		_currentTier++;
-		// TODO implement functionality based on dates
+		// TODO implement functionality based on dates or perhaps consider block number
 	}
 
 	// Claim the prize
